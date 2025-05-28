@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Offline Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .entry { margin-bottom: 20px; border: 1px solid #ccc; padding: 10px; }
+    input, textarea, button {
+      display: block;
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Offline Form (Multiple Entries)</h2>
+  <form id="offlineForm">
+    <div id="entryContainer">
+      <div class="entry">
+        <input type="text" name="name[]" placeholder="Your Name" required>
+        <input type="email" name="email[]" placeholder="Your Email" required>
+        <textarea name="message[]" placeholder="Your Message" rows="3"></textarea>
+      </div>
+    </div>
+    <button type="button" id="addEntry">+ Add Another Entry</button>
+    <button type="submit">Save All Offline</button>
+  </form>
+
+  <p id="status"></p>
+
+  <script>
+    const form = document.getElementById('offlineForm');
+    const status = document.getElementById('status');
+    const entryContainer = document.getElementById('entryContainer');
+    const addEntryBtn = document.getElementById('addEntry');
+
+    addEntryBtn.addEventListener('click', () => {
+      const entryBlock = document.createElement('div');
+      entryBlock.className = 'entry';
+      entryBlock.innerHTML = `
+        <input type="text" name="name[]" placeholder="Your Name" required>
+        <input type="email" name="email[]" placeholder="Your Email" required>
+        <textarea name="message[]" placeholder="Your Message" rows="3"></textarea>
+      `;
+      entryContainer.appendChild(entryBlock);
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const names = Array.from(form.querySelectorAll('input[name="name[]"]')).map(el => el.value.trim());
+      const emails = Array.from(form.querySelectorAll('input[name="email[]"]')).map(el => el.value.trim());
+      const messages = Array.from(form.querySelectorAll('textarea[name="message[]"]')).map(el => el.value.trim());
+
+      // Build array of entries
+      const newEntries = names.map((name, i) => ({
+        name,
+        email: emails[i],
+        message: messages[i],
+        timestamp: new Date().toISOString()
+      }));
+
+      // Get current entries from localStorage
+      const storedEntries = JSON.parse(localStorage.getItem('offlineForms')) || [];
+
+      // Append new entries to existing ones
+      const allEntries = storedEntries.concat(newEntries);
+
+      // Save back to localStorage
+      localStorage.setItem('offlineForms', JSON.stringify(allEntries));
+
+      form.reset();
+      entryContainer.innerHTML = `<div class="entry">
+        <input type="text" name="name[]" placeholder="Your Name" required>
+        <input type="email" name="email[]" placeholder="Your Email" required>
+        <textarea name="message[]" placeholder="Your Message" rows="3"></textarea>
+      </div>`;
+      status.textContent = `${newEntries.length} entries saved offline.`;
+    });
+  </script>
+
+</body>
+</html>
