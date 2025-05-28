@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Offline Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, textarea, button {
+      display: block;
+      margin-bottom: 10px;
+      width: 300px;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Offline Form</h2>
+  <form id="offlineForm">
+    <input type="text" name="name" placeholder="Your Name" required>
+    <input type="email" name="email" placeholder="Your Email" required>
+    <textarea name="message" placeholder="Your Message" rows="4"></textarea>
+    <button type="submit">Save Offline</button>
+  </form>
+
+  <p id="status"></p>
+
+  <script>
+    const form = document.getElementById('offlineForm');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      // Create a form entry object
+      const formData = {
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        message: form.message.value.trim(),
+        timestamp: new Date().toISOString()
+      };
+
+      // Get existing entries or start a new array
+      let entries = JSON.parse(localStorage.getItem('offlineForms')) || [];
+
+      // Add new entry to the list
+      entries.push(formData);
+
+      // Save updated list back to localStorage
+      localStorage.setItem('offlineForms', JSON.stringify(entries));
+
+      // Optional: clear form and show status
+      form.reset();
+      status.textContent = "Saved offline. Entry added to local list.";
+    });
+  </script>
+
+</body>
+</html>
